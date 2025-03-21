@@ -1,0 +1,27 @@
+name: Auto Update Submodules
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+jobs:
+  update-submodules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Monorepo with Submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      - name: Update submodules
+        run: |
+          git submodule update --remote --merge
+          git commit -am "🔄 Update submodules" || echo "Nothing to commit"
+          git push origin main || echo "Nothing to push"
